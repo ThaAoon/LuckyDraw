@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER LUCKY DRAW // ระบบสุ่มผู้โชคดี</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Prompt:wght@300;400;600&display=swap');
+        
+        body { 
+            font-family: 'Prompt', sans-serif; 
+            background-color: #030712;
+            background-image: 
+                linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        .tech-font { font-family: 'Orbitron', 'Prompt', sans-serif; }
+        .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); text-shadow: 0 0 8px rgba(6, 182, 212, 0.6); }
+        .glow-magenta { box-shadow: 0 0 25px rgba(236, 72, 153, 0.4); }
+        
+        @keyframes tech-shake {
+            0% { transform: translate(0, 0) skewX(0deg); }
+            20% { transform: translate(-2px, 2px) skewX(-1deg); }
+            40% { transform: translate(2px, -1px) skewX(1deg); }
+            60% { transform: translate(-1px, -2px) skewX(0deg); }
+            80% { transform: translate(2px, 2px) skewX(1deg); }
+            100% { transform: translate(0, 0) skewX(0deg); }
+        }
+        .shaking {
+            animation: tech-shake 0.1s infinite;
+            border-color: #f43f5e !important;
+            box-shadow: 0 0 25px rgba(244, 63, 94, 0.6) !important;
+        }
+    </style>
+    <!-- 🔗 เชื่อมต่อฐานข้อมูลพนักงานจากภายนอก -->
+    <script src="database.js"></script>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+
+    <!-- แสงไฟนีออนตกแต่งพื้นหลัง -->
+    <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-72 h-72 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative bg-slate-900/80 backdrop-blur-xl p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-xl border border-cyan-500/30">
+        
+        <!-- ขอบมุมสไตล์ Sci-Fi -->
+        <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyan-400 rounded-tl-lg"></div>
+        <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyan-400 rounded-tr-lg"></div>
+        <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyan-400 rounded-bl-lg"></div>
+        <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyan-400 rounded-br-lg"></div>
+
+        <div class="text-center mb-6">
+            <span class="text-xs text-cyan-400 tracking-widest tech-font uppercase block mb-1">MAIN_RANDOM_ENGINE_WITH_AUDIO</span>
+            <h1 class="text-3xl font-extrabold text-white tech-font tracking-wide">
+                LUCKYDRAW <span class="text-cyan-400">V.2026</span>
+            </h1>
+            <p id="db-status" class="text-[11px] text-slate-500 mt-1 tech-font">LOADING DATABASE...</p>
+        </div>
+        
+        <!-- แผงหน้าจอแสดงผลดีไซน์แบบเจาะลึก Parameter -->
+        <div class="relative">
+            <div id="display-card" class="bg-black/70 min-h-44 flex flex-col items-center justify-center rounded-xl my-5 border border-cyan-500/40 glow-cyan p-6 transition-all duration-200 text-center relative overflow-hidden">
+                
+                <!-- รหัสพนักงาน -->
+                <div id="display-id" class="text-3xl md:text-4xl font-extrabold text-cyan-400 tech-font tracking-wider mb-2">
+                    [ READY ]
+                </div>
+                
+                <!-- ข้อมูลส่วนตัวพนักงาน -->
+                <div id="display-name" class="text-lg md:text-xl font-semibold text-white mb-2 tracking-wide">
+                    กดเริ่มเพื่อเริ่มสุ่มรางวัล
+                </div>
+                
+                <!-- แผนกและหน่วยงาน -->
+                <div id="display-dept-unit" class="text-xs text-slate-400 font-medium tracking-wide">
+                    ---
+                </div>
+
+                <!-- หมายเหตุ / Remark -->
+                <div id="display-remark" class="text-[10px] text-slate-500 mt-2 italic border-t border-slate-800 pt-1 w-full max-w-xs">
+                    -
+                </div>
+            </div>
+            <div class="absolute top-2 left-3 text-[9px] text-cyan-500/40 tech-font">AUDIO_MATCH_CORE</div>
+        </div>
+
+        <!-- แผงปุ่มควบคุม -->
+        <div class="space-y-4">
+            <button id="btn-start" onclick="startRandom()" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-4 px-6 rounded-xl text-xl shadow-lg transition transform active:scale-95 cursor-pointer tech-font tracking-wider glow-magenta border border-pink-400/30">
+                RANDOM
+            </button>
+            
+            <!-- <a href="manage.html" class="block w-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-cyan-400 border border-slate-700 hover:border-cyan-500/50 font-medium py-2.5 px-4 rounded-xl text-xs transition text-center tech-font tracking-widest">
+                TEMPORARY STORAGE CONTROL
+            </a> -->
+        </div>
+    </div>
+
+    <div class="mt-6 text-[10px] text-slate-600 tech-font uppercase tracking-widest">
+        <!-- Secure Client-Side // Synthesized Audio Engine V2 -->
+    </div>
+
+    <script>
+        let mainList = [];
+        let intervalId = null;
+        
+        // ตัวแปรสำหรับระบบสังเคราะห์เสียง
+        let audioCtx = null;
+
+        // ฟังก์ชันเริ่มระบบเสียง (ต้องทำผ่านการคลิกปุ่มของยูสเซอร์ตามกฎความปลอดภัยของบราวเซอร์)
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // 1. เสียงคลิกสั้นๆ แนว Sci-Fi ปลดล็อค
+        function playClickSound() {
+            initAudio();
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        // 2. เสียงติ๊กๆ ตอนรายชื่อวิ่งหมุนเปลี่ยนไปเรื่อยๆ
+        function playTickSound() {
+            initAudio();
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = 'triangle'; // เสียงทุ้มแน่น ฟิลลิ่งเครื่องจักรกล
+            // สุ่มคีย์เสียงเล็กน้อยให้ดูมีมิติ ไม่น่าเบื่อ
+            let freq = 200 + Math.random() * 150; 
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.04);
+        }
+
+        // 3. เสียงแตร Fanfare ฉลองเมื่อสุ่มได้ผู้โชคดีตัวจริง
+        function playWinnerSound() {
+            initAudio();
+            let now = audioCtx.currentTime;
+            // ตัวโน้ตเพลงฉลองแห่งชัยชนะ (C4, E4, G4, C5)
+            let notes = [261.63, 329.63, 392.00, 523.25]; 
+            
+            notes.forEach((freq, index) => {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                
+                osc.type = 'sawtooth'; // เสียงแตรสว่างสดใสทรงพลัง
+                osc.frequency.setValueAtTime(freq, now + (index * 0.12));
+                
+                gain.gain.setValueAtTime(0.08, now + (index * 0.12));
+                gain.gain.linearRampToValueAtTime(0.01, now + (index * 0.12) + 0.4);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now + (index * 0.12));
+                osc.stop(now + (index * 0.12) + 0.4);
+            });
+        }
+
+        window.onload = function() {
+            if (typeof EMPLOYEE_DATABASE !== 'undefined' && EMPLOYEE_DATABASE.length > 0) {
+                mainList = [...EMPLOYEE_DATABASE];
+            }
+
+            const storedNames = localStorage.getItem('lucky_names');
+            if (storedNames) {
+                const extraLines = JSON.parse(storedNames);
+                extraLines.forEach(line => {
+                    const [id, firstName, lastName, department, unit, remark] = line.trim().split(/\s+/);
+                    if (id) {
+                        mainList.push({
+                            id: id,
+                            firstName: firstName || "Unknown",
+                            lastName: lastName || "",
+                            department: department || "EXTERNAL",
+                            unit: unit || "TEMP",
+                            remark: remark || "Added via Control Panel"
+                        });
+                    }
+                });
+            }
+
+            document.getElementById('db-status').innerText = `LOADED_RECORDS: ${mainList.length} TARGETS`;
+
+            if (mainList.length === 0) {
+                document.getElementById('display-id').innerText = "ERR_EMPTY";
+                document.getElementById('display-id').style.color = "#f43f5e";
+                document.getElementById('display-name').innerText = "ไม่พบฐานข้อมูลพนักงานในระบบ";
+                const btn = document.getElementById('btn-start');
+                btn.disabled = true;
+                btn.classList.add('opacity-30', 'cursor-not-allowed');
+                btn.innerText = "SYSTEM LOCKED";
+            }
+        };
+
+        function startRandom() {
+            if (mainList.length === 0 || intervalId !== null) return;
+            
+            const btn = document.getElementById('btn-start');
+            const card = document.getElementById('display-card');
+            const dId = document.getElementById('display-id');
+            const dName = document.getElementById('display-name');
+            const dDeptUnit = document.getElementById('display-dept-unit');
+            const dRemark = document.getElementById('display-remark');
+
+            playClickSound();
+
+            btn.innerText = "SYSTEM RUNNING...";
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            card.classList.add('shaking');
+            
+            // --- ส่วนที่เปลี่ยน: ระบบสุ่มแบบจากเร็วไปช้า ---
+            const totalDuration = Math.floor(Math.random() * 3001) + 5000; // สุ่มเวลาทำงาน 5-10 วินาที
+            const startTime = Date.now();
+            
+            const run = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = elapsed / totalDuration; // ความคืบหน้า (0 ถึง 1)
+
+                // สุ่มรายชื่อแสดงผล
+                const randomIndex = Math.floor(Math.random() * mainList.length);
+                const emp = mainList[randomIndex];
+                dId.innerText = emp.id;
+                dName.innerText = `${emp.firstName} ${emp.lastName}`;
+                dDeptUnit.innerText = `[ ${emp.department} // ${emp.unit} ]`;
+                dRemark.innerText = `REMARK: ${emp.remark}`;
+                playTickSound();
+
+                if (elapsed < totalDuration) {
+                    // คำนวณ Delay ให้ค่อยๆ เพิ่มขึ้น (ยิ่งเวลาผ่านไป ยิ่งช้าลง)
+                    // เริ่มต้นที่ 50ms และค่อยๆ ช้าลงไปจนถึง 500ms ในช่วงท้าย
+                    // ใช้ progress^2 เพื่อให้มันช้าลงแบบเร่งความเร็วในช่วงจบ (Exponential Slower)
+                    const currentDelay = 50 + (450 * Math.pow(progress, 2));
+                    
+                    intervalId = setTimeout(run, currentDelay);
+                } else {
+                    // หยุดและแสดงผู้ชนะ
+                    finalizeWinner();
+                }
+            };
+
+            const finalizeWinner = () => {
+                intervalId = null;
+                
+                btn.innerText = "RANDOM AGAIN";
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                card.classList.remove('shaking');
+                
+                const finalIndex = Math.floor(Math.random() * mainList.length);
+                const winner = mainList[finalIndex];
+                
+                dId.innerText = `🎯 ${winner.id} 🎯`;
+                dName.innerText = `👑 ${winner.firstName} ${winner.lastName} 👑`;
+                dDeptUnit.innerText = `แผนก: ${winner.department} | หน่วยงาน: ${winner.unit}`;
+                dRemark.innerText = `หมายเหตุ: ${winner.remark}`;
+                
+                playWinnerSound();
+
+                card.style.borderColor = "#f59e0b";
+                card.style.boxShadow = "0 0 30px rgba(245, 158, 11, 0.8)";
+                dId.style.color = "#f59e0b";
+                dName.style.color = "#f59e0b";
+                
+                setTimeout(() => {
+                    card.style.borderColor = "";
+                    card.style.boxShadow = "";
+                    dId.style.color = "";
+                    dName.style.color = "";
+                }, 3500);
+            };
+
+            run(); // เริ่มการสุ่มรอบแรก
+            // --- จบส่วนที่เปลี่ยน ---
+        }
+    </script>
+</body>
+</html>
