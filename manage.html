@@ -107,6 +107,35 @@
             renderList();
         };
 
+        // function renderList() {
+        //     const container = document.getElementById('list-container');
+        //     const countSpan = document.getElementById('count');
+        //     container.innerHTML = '';
+        //     countSpan.innerText = tempNames.length;
+
+        //     if (tempNames.length === 0) {
+        //         container.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-600 font-mono">// NO_TEMP_RECORDS</td></tr>`;
+        //         return;
+        //     }
+
+        //     tempNames.forEach((lineText, index) => {
+        //         const [id, firstName, lastName, department, unit, remark] = lineText.trim().split(/\s+/);
+                
+        //         const tr = document.createElement('tr');
+        //         tr.className = 'hover:bg-green-500/5 transition text-[11px] md:text-xs';
+        //         tr.innerHTML = `
+        //             <td class="p-2 font-mono text-green-400">${id || "N/A"}</td>
+        //             <td class="p-2">${(firstName || "") + " " + (lastName || "")}</td>
+        //             <td class="p-2">${(department || "N/A") + " / " + (unit || "N/A")}</td>
+        //             <td class="p-2 text-slate-500">${remark || "-"}</td>
+        //             <td class="p-2 text-center">
+        //                 <button onclick="deleteName(${index})" class="text-rose-400 hover:text-rose-300 px-1 font-mono">[DEL]</button>
+        //             </td>
+        //         `;
+        //         container.appendChild(tr);
+        //     });
+        // }
+
         function renderList() {
             const container = document.getElementById('list-container');
             const countSpan = document.getElementById('count');
@@ -119,7 +148,9 @@
             }
 
             tempNames.forEach((lineText, index) => {
-                const [id, firstName, lastName, department, unit, remark] = lineText.trim().split(/\s+/);
+                // เปลี่ยนมาใช้สปลิตด้วยเครื่องหมาย | และตัดช่องว่างออก
+                const columns = lineText.split('|').map(item => item.trim());
+                const [id, firstName, lastName, department, unit, remark] = columns;
                 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-green-500/5 transition text-[11px] md:text-xs';
