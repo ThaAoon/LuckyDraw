@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TECHNOLOGY FORUM FY26 LUCKY DRAW // ระบบสุ่มผู้โชคดี</title>
+    <title>TECHNOLOGY FORUM LUCKY DRAW // ระบบสุ่มผู้โชคดี</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Prompt:wght@300;400;600&display=swap');
@@ -173,6 +173,42 @@
             });
         }
 
+        // window.onload = function() {
+        //     if (typeof EMPLOYEE_DATABASE !== 'undefined' && EMPLOYEE_DATABASE.length > 0) {
+        //         mainList = [...EMPLOYEE_DATABASE];
+        //     }
+
+        //     const storedNames = localStorage.getItem('lucky_names');
+        //     if (storedNames) {
+        //         const extraLines = JSON.parse(storedNames);
+        //         extraLines.forEach(line => {
+        //             const [id, firstName, lastName, department, unit, remark] = line.trim().split(/\s+/);
+        //             if (id) {
+        //                 mainList.push({
+        //                     id: id,
+        //                     firstName: firstName || "Unknown",
+        //                     lastName: lastName || "",
+        //                     department: department || "EXTERNAL",
+        //                     unit: unit || "TEMP",
+        //                     remark: remark || "Added via Control Panel"
+        //                 });
+        //             }
+        //         });
+        //     }
+
+        //     document.getElementById('db-status').innerText = `LOADED_RECORDS: ${mainList.length} TARGETS`;
+
+        //     if (mainList.length === 0) {
+        //         document.getElementById('display-id').innerText = "ERR_EMPTY";
+        //         document.getElementById('display-id').style.color = "#f43f5e";
+        //         document.getElementById('display-name').innerText = "ไม่พบฐานข้อมูลพนักงานในระบบ";
+        //         const btn = document.getElementById('btn-start');
+        //         btn.disabled = true;
+        //         btn.classList.add('opacity-30', 'cursor-not-allowed');
+        //         btn.innerText = "SYSTEM LOCKED";
+        //     }
+        // };
+
         window.onload = function() {
             if (typeof EMPLOYEE_DATABASE !== 'undefined' && EMPLOYEE_DATABASE.length > 0) {
                 mainList = [...EMPLOYEE_DATABASE];
@@ -182,7 +218,9 @@
             if (storedNames) {
                 const extraLines = JSON.parse(storedNames);
                 extraLines.forEach(line => {
-                    const [id, firstName, lastName, department, unit, remark] = line.trim().split(/\s+/);
+                    // เปลี่ยนจาก .split(/\s+/) เป็นการแยกด้วย | เช่นกัน
+                    const columns = line.split('|').map(item => item.trim());
+                    const [id, firstName, lastName, department, unit, remark] = columns;
                     if (id) {
                         mainList.push({
                             id: id,
@@ -209,6 +247,7 @@
             }
         };
 
+
         function startRandom() {
             if (mainList.length === 0 || intervalId !== null) return;
             
@@ -217,7 +256,7 @@
             const dId = document.getElementById('display-id');
             const dName = document.getElementById('display-name');
             const dDeptUnit = document.getElementById('display-dept-unit');
-            const dRemark = document.getElementById('display-remark');
+            // const dRemark = document.getElementById('display-remark');
 
             playClickSound();
 
@@ -239,8 +278,8 @@
                 const emp = mainList[randomIndex];
                 dId.innerText = emp.id;
                 dName.innerText = `${emp.firstName} ${emp.lastName}`;
-                dDeptUnit.innerText = `[ ${emp.department} // ${emp.unit} ]`;
-                dRemark.innerText = `REMARK: ${emp.remark}`;
+                dDeptUnit.innerText = `[ ${emp.department} ]`;
+                // dRemark.innerText = `REMARK: ${emp.remark}`;
                 playTickSound();
 
                 if (elapsed < totalDuration) {
@@ -269,8 +308,8 @@
                 
                 dId.innerText = `🎯 ${winner.id} 🎯`;
                 dName.innerText = `👑 ${winner.firstName} ${winner.lastName} 👑`;
-                dDeptUnit.innerText = `แผนก: ${winner.department} | หน่วยงาน: ${winner.unit}`;
-                dRemark.innerText = `หมายเหตุ: ${winner.remark}`;
+                dDeptUnit.innerText = `${winner.department}`;
+                // dRemark.innerText = `หมายเหตุ: ${winner.remark}`;
                 
                 playWinnerSound();
 
