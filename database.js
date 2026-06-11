@@ -5,7 +5,7 @@
 // วางข้อมูลดิบพนักงานที่นี่ โดยเรียงลำดับคอลัมน์และคั่นด้วยเครื่องหมาย | (Pipe) ดังนี้:
 // [รหัสพนักงาน] | [ชื่อ] | [นามสกุล] | [แผนก] | [หน่วยงาน] | [หมายเหตุ/Remark]
 // สามารถเว้นวรรคภายในข้อความได้ตามปกติแล้ว เช่น Tech Center
-const RAW_EMPLOYEE_DATA = `
+//const RAW_EMPLOYEE_DATA = `
 5022260021 | Panathorn | Boonrae | Corporate Procurement Center |  | 
 5022250181 | Punika | Phongkoh | Corporate Procurement Center |  | 
 5022122440 | Wanvisa | Chowsuanthong | Automotive BIZ. Center |  | 
